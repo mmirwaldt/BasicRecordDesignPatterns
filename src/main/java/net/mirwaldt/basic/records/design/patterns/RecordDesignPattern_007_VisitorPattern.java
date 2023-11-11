@@ -10,14 +10,26 @@
 
 package net.mirwaldt.basic.records.design.patterns;
 
-public class RecordDesignPattern_006_VisitorPattern {
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_007_VisitorPattern.Value.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_007_VisitorPattern.Value.TRUE;
+
+public class RecordDesignPattern_007_VisitorPattern {
 
     sealed interface Expression permits UnaryExpression, BinaryExpression {
         <V> V accept(ExpressionVisitor<V> visitor);
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
+    sealed interface UnaryExpression extends Expression permits Value, Variable, Not, Brackets {
 
+    }
+
+    enum Value implements UnaryExpression {
+        TRUE, FALSE;
+
+        @Override
+        public <V> V accept(ExpressionVisitor<V> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     record Variable(String name) implements UnaryExpression {
@@ -60,6 +72,8 @@ public class RecordDesignPattern_006_VisitorPattern {
     }
 
     interface ExpressionVisitor<V> {
+        V visit(Value value);
+
         V visit(Variable variable);
 
         V visit(Not not);
@@ -72,6 +86,7 @@ public class RecordDesignPattern_006_VisitorPattern {
 
         default V visit(UnaryExpression unaryExpression) {
             return switch (unaryExpression) {
+                case Value value -> visit(value);
                 case Variable variable -> visit(variable);
                 case Not not -> visit(not);
                 case Brackets brackets -> visit(brackets);
@@ -94,6 +109,11 @@ public class RecordDesignPattern_006_VisitorPattern {
     }
 
     static class Bracketeer implements ExpressionVisitor<Expression> {
+        @Override
+        public Expression visit(Value value) {
+            return value;
+        }
+
         @Override
         public Expression visit(Variable variable) {
             return variable;
@@ -129,6 +149,11 @@ public class RecordDesignPattern_006_VisitorPattern {
 
     static class Stringifier implements ExpressionVisitor<String> {
         @Override
+        public String visit(Value value) {
+            return value.name();
+        }
+
+        @Override
         public String visit(Variable variable) {
             return variable.name();
         }
@@ -155,13 +180,11 @@ public class RecordDesignPattern_006_VisitorPattern {
     }
     
     public static void main(String[] args) {
-        Variable A = new Variable("A");
         Variable B = new Variable("B");
         Variable C = new Variable("C");
         Variable D = new Variable("D");
-        Variable E = new Variable("E");
 
-        Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
+        Expression expression = new And(new Or(new And(FALSE, new Not(B)), new Not(new And(C, D))), TRUE);
 
         Bracketeer bracketeer = new Bracketeer();
         Expression withBrackets = bracketeer.visit(expression);

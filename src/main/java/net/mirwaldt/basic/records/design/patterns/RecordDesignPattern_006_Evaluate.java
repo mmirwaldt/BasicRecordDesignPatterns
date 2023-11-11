@@ -2,14 +2,25 @@ package net.mirwaldt.basic.records.design.patterns;
 
 import java.util.Map;
 
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_006_Evaluate.Value.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_006_Evaluate.Value.TRUE;
+
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_005_Evaluate {
+public class RecordDesignPattern_006_Evaluate {
     sealed interface Expression permits UnaryExpression, BinaryExpression {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
+    sealed interface UnaryExpression extends Expression permits Value, Variable, Not, Brackets {
 
+    }
+
+    enum Value implements UnaryExpression {
+        TRUE, FALSE;
+
+        boolean asBoolean() {
+            return this == TRUE;
+        }
     }
 
     record Variable(String name) implements UnaryExpression {
@@ -36,9 +47,10 @@ public class RecordDesignPattern_005_Evaluate {
 
     }
 
-    public static boolean evaluate(Expression expression, Map<Variable, Boolean> values) {
+    public static boolean evaluate(Expression expression, Map<Variable, Value> values) {
         return switch (expression) {
-            case Variable variable -> values.get(variable);
+            case Value value -> value.asBoolean();
+            case Variable variable -> evaluate(values.get(variable), values);
             case Brackets brackets -> evaluate(brackets.withoutBrackets(), values);
             case Not not -> !evaluate(not.unnegated(), values);
             case And and -> evaluate(and.left(), values) && evaluate(and.right(), values);
@@ -47,19 +59,17 @@ public class RecordDesignPattern_005_Evaluate {
     }
 
     public static void main(String[] args) {
-        Variable A = new Variable("A");
         Variable B = new Variable("B");
         Variable C = new Variable("C");
         Variable D = new Variable("D");
-        Variable E = new Variable("E");
 
-        // "(A && !B || !(C && D)) && E"
-        Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
+        // "(FALSE && !B || !(C && D)) && TRUE"
+        Expression expression = new And(new Or(new And(FALSE, new Not(B)), new Not(new And(C, D))), TRUE);
 
         // false
-        System.out.println(evaluate(expression, Map.of(A, false, B, false, C, true, D, true, E, true)));
+        System.out.println(evaluate(expression, Map.of(B, FALSE, C, TRUE, D, TRUE)));
 
         // true
-        System.out.println(evaluate(expression, Map.of(A, true, B, false, C, false, D, true, E, true)));
+        System.out.println(evaluate(expression, Map.of(B, TRUE, C, FALSE, D, TRUE)));
     }
 }

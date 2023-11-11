@@ -6,6 +6,7 @@ public class RecordDesignPattern_001_ToString {
     }
 
     record Variable(String name) implements Expression {
+
     }
 
     record Not(Expression unnegated) implements Expression {
