@@ -17,10 +17,6 @@ public class RecordDesignPattern_006_Evaluate {
 
     enum Value implements UnaryExpression {
         TRUE, FALSE;
-
-        boolean asBoolean() {
-            return this == TRUE;
-        }
     }
 
     record Variable(String name) implements UnaryExpression {
@@ -49,7 +45,7 @@ public class RecordDesignPattern_006_Evaluate {
 
     public static boolean evaluate(Expression expression, Map<Variable, Value> values) {
         return switch (expression) {
-            case Value value -> value.asBoolean();
+            case Value value -> value == TRUE;
             case Variable variable -> evaluate(values.get(variable), values);
             case Brackets brackets -> evaluate(brackets.withoutBrackets(), values);
             case Not not -> !evaluate(not.unnegated(), values);

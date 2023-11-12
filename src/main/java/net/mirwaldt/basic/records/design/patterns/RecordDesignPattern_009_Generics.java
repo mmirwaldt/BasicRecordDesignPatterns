@@ -83,15 +83,15 @@ public class RecordDesignPattern_009_Generics {
         }
     }
 
-    public static <V extends Value> Expression<V> addBrackets(Expression<V> child, Expression<V> parent) {
+    public static <V extends Value> Expression<V> toBrackets(Expression<V> child, Expression<V> parent) {
         return switch (child) {
-            case ManyExpression<V> binary when parent instanceof Not -> new Brackets<V>(addBrackets(binary, child));
-            case Or<V> or when parent instanceof And -> new Brackets<V>(addBrackets(or, child));
-            case Not<V> not -> new Not<V>(addBrackets(not.unnegated(), not));
-            case And<V> and when and.isBinary() -> new And<>(addBrackets(and.left(), child), addBrackets(and.middle(), child));
-            case Or<V> or when or.isBinary() -> new Or<>(addBrackets(or.left(), child), addBrackets(or.middle(), child));
-            case And<V> and -> addBrackets((new And<>(and.withoutLast(), and.last())), child);
-            case Or<V> or -> addBrackets((new Or<>(or.withoutLast(), or.last())), child);
+            case ManyExpression<V> binary when parent instanceof Not -> new Brackets<V>(toBrackets(binary, child));
+            case Or<V> or when parent instanceof And -> new Brackets<V>(toBrackets(or, child));
+            case Not<V> not -> new Not<V>(toBrackets(not.unnegated(), not));
+            case And<V> and when and.isBinary() -> new And<>(toBrackets(and.left(), child), toBrackets(and.middle(), child));
+            case Or<V> or when or.isBinary() -> new Or<>(toBrackets(or.left(), child), toBrackets(or.middle(), child));
+            case And<V> and -> toBrackets((new And<>(and.withoutLast(), and.last())), child);
+            case Or<V> or -> toBrackets((new Or<>(or.withoutLast(), or.last())), child);
             default -> child;
         };
     }
@@ -116,9 +116,11 @@ public class RecordDesignPattern_009_Generics {
         Variable<BitValue> C = new Variable<>("C");
         Variable<BitValue> D = new Variable<>("D");
 
-        Expression<BitValue> bitExpression = new And<>(new Or<>(new And<>(A, _1, new Not<>(B)), new Not<>(new And<>(C, D)), _0), _1);
-        Expression<BitValue> bitExpressionWithBrackets = addBrackets(bitExpression, null);
-        System.out.println(toString(bitExpressionWithBrackets)); // prints out "(A && 1 && !B || !(C && D) || 0) && 1"
+        Expression<BitValue> bitExpression =
+                new And<>(new Or<>(new And<>(A, _1, new Not<>(B)), new Not<>(new And<>(C, D)), _0), _1);
+        Expression<BitValue> bitExpressionWithBrackets = toBrackets(bitExpression, null);
+        // prints out "(A && 1 && !B || !(C && D) || 0) && 1"
+        System.out.println(toString(bitExpressionWithBrackets));
 
 
         Variable<BooleanValue> a = new Variable<>("A");
@@ -126,8 +128,11 @@ public class RecordDesignPattern_009_Generics {
         Variable<BooleanValue> c = new Variable<>("C");
         Variable<BooleanValue> d = new Variable<>("D");
 
-        Expression<BooleanValue> booleanExpression = new And<>(new Or<>(new And<>(a, TRUE, new Not<>(b)), new Not<>(new And<>(c, d)), FALSE), FALSE);
-        Expression<BooleanValue> booleanExpressionWithBrackets = addBrackets(booleanExpression, null);
-        System.out.println(toString(booleanExpressionWithBrackets)); // prints out "(A && TRUE && !B || !(C && C) || FALSE) && FALSE"
+        Expression<BooleanValue> booleanExpression =
+                new And<>(new Or<>(new And<>(a, TRUE, new Not<>(b)), new Not<>(new And<>(c, d)), FALSE), FALSE);
+        Expression<BooleanValue> booleanExpressionWithBrackets = toBrackets(booleanExpression, null);
+
+        // prints out "(A && TRUE && !B || !(C && C) || FALSE) && FALSE"
+        System.out.println(toString(booleanExpressionWithBrackets));
     }
 }

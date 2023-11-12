@@ -10,6 +10,8 @@
 
 package net.mirwaldt.basic.records.design.patterns;
 
+import java.util.Map;
+
 import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_007_VisitorPattern.Value.FALSE;
 import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_007_VisitorPattern.Value.TRUE;
 
@@ -122,7 +124,10 @@ public class RecordDesignPattern_007_VisitorPattern {
         @Override
         public Expression visit(Not not) {
             Expression visitedUnnegated = not.unnegated().accept(this);
-            return (not.unnegated() instanceof BinaryExpression) ? new Not(new Brackets(visitedUnnegated)) : new Not(visitedUnnegated);
+            return new Not((not.unnegated() instanceof BinaryExpression)
+                    ? new Brackets(visitedUnnegated)
+                    : new Not(visitedUnnegated)
+            );
         }
 
         @Override
@@ -165,12 +170,12 @@ public class RecordDesignPattern_007_VisitorPattern {
 
         @Override
         public String visit(And and) {
-            return and.left().accept(this)  + " && " + and.right().accept(this);
+            return and.left().accept(this) + " && " + and.right().accept(this);
         }
 
         @Override
         public String visit(Or or) {
-            return or.left().accept(this)  + " || " + or.right().accept(this);
+            return or.left().accept(this) + " || " + or.right().accept(this);
         }
 
         @Override
@@ -178,7 +183,45 @@ public class RecordDesignPattern_007_VisitorPattern {
             return "(" + brackets.withoutBrackets().accept(this) + ")";
         }
     }
-    
+
+    static class Evaluator implements ExpressionVisitor<Boolean> {
+        private final Map<Variable, Value> values;
+
+        public Evaluator(Map<Variable, Value> values) {
+            this.values = Map.copyOf(values);
+        }
+
+        @Override
+        public Boolean visit(Value value) {
+            return value == TRUE;
+        }
+
+        @Override
+        public Boolean visit(Variable variable) {
+            return visit(values.get(variable));
+        }
+
+        @Override
+        public Boolean visit(Not not) {
+            return !not.unnegated().accept(this);
+        }
+
+        @Override
+        public Boolean visit(And and) {
+            return and.left().accept(this) && and.right().accept(this);
+        }
+
+        @Override
+        public Boolean visit(Or or) {
+            return or.left().accept(this) || or.right().accept(this);
+        }
+
+        @Override
+        public Boolean visit(Brackets brackets) {
+            return brackets.withoutBrackets().accept(this);
+        }
+    }
+
     public static void main(String[] args) {
         Variable B = new Variable("B");
         Variable C = new Variable("C");
@@ -190,6 +233,9 @@ public class RecordDesignPattern_007_VisitorPattern {
         Expression withBrackets = bracketeer.visit(expression);
 
         Stringifier stringifier = new Stringifier();
-        System.out.println(stringifier.visit(withBrackets)); // prints out "(A && !B || !(C && D)) && E"
+        System.out.println(stringifier.visit(withBrackets)); // prints out "(FALSE && !B || !(C && D)) && TRUE"
+
+        Evaluator evaluator = new Evaluator(Map.of(B, TRUE, C, FALSE, D, TRUE));
+        System.out.println(expression.accept(evaluator)); // print true
     }
 }

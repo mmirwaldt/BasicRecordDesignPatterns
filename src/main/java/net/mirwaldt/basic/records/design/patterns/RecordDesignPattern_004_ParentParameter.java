@@ -37,10 +37,13 @@ public class RecordDesignPattern_004_ParentParameter {
     public static Expression addBrackets(Expression child, Expression parent) {
         return switch (child) {
             case BinaryExpression binary when parent instanceof Not -> new Brackets(addBrackets(binary, child));
+
             case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
+
             case Not not -> new Not(addBrackets(not.unnegated(), not));
             case And and -> new And(addBrackets(and.left(), child), addBrackets(and.right(), child));
             case Or or -> new Or(addBrackets(or.left(), child), addBrackets(or.right(), child));
+
             default -> child;
         };
     }

@@ -11,6 +11,7 @@ public class RecordDesignPattern_002_BracketsForString {
     }
 
     record Brackets(Expression withoutBrackets) implements Expression {
+
     }
 
     record Not(Expression unnegated) implements Expression {
@@ -29,11 +30,14 @@ public class RecordDesignPattern_002_BracketsForString {
         return switch (expression) {
             case Not(And and) -> new Not(new Brackets(addBrackets(and)));
             case Not(Or or) -> new Not(new Brackets(addBrackets(or)));
+
             case And(Or left, Or right) -> new And(new Brackets(addBrackets(left)), new Brackets(addBrackets(right)));
             case And(Or or, Expression e) -> new And(new Brackets(addBrackets(or)), addBrackets(e));
             case And(Expression e, Or or) -> new And(addBrackets(e), new Brackets(addBrackets(or)));
+
             case And and -> new And(addBrackets(and.left()), addBrackets(and.right()));
             case Or or -> new Or(addBrackets(or.left()), addBrackets(or.right()));
+
             default -> expression;
         };
     }

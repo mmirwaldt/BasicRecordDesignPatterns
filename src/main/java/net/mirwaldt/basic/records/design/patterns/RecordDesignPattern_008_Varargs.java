@@ -33,25 +33,62 @@ public class RecordDesignPattern_008_Varargs {
     }
 
     sealed interface ManyExpression extends Expression permits And, Or {
-        Expression[] right();
+        Expression withoutLast();
+        Expression last();
 
-        default Expression[] rightWithoutLast() {
-            Expression[] rights = right();
-            return Arrays.copyOf(rights, rights.length - 1);
+        static Expression[] rightWithoutLast(Expression[] right) {
+            return Arrays.copyOf(right, right.length - 1);
         }
 
-        default Expression last() {
-            Expression[] rights = right();
-            return rights[rights.length - 1];
+        static Expression last(Expression[] right) {
+            return right[right.length - 1];
         }
     }
 
     record And(Expression left, Expression middle, Expression...right) implements ManyExpression {
+        And(Expression left, Expression middle, Expression...right) {
+            this.left = left;
+            this.middle = middle;
+            this.right = Arrays.copyOf(right, right.length);
+        }
 
+        @Override
+        public And withoutLast() {
+            return new And(left, middle, ManyExpression.rightWithoutLast(right));
+        }
+
+        @Override
+        public Expression last() {
+            return ManyExpression.last(right);
+        }
+
+        @Override
+        public Expression[] right() {
+            return Arrays.copyOf(right, right.length);
+        }
     }
 
     record Or(Expression left, Expression middle, Expression...right) implements ManyExpression {
+        Or(Expression left, Expression middle, Expression...right) {
+            this.left = left;
+            this.middle = middle;
+            this.right = Arrays.copyOf(right, right.length);
+        }
 
+        @Override
+        public Or withoutLast() {
+            return new Or(left, middle, ManyExpression.rightWithoutLast(right));
+        }
+
+        @Override
+        public Expression last() {
+            return ManyExpression.last(right);
+        }
+
+        @Override
+        public Expression[] right() {
+            return Arrays.copyOf(right, right.length);
+        }
     }
 
     public static Expression addBrackets(Expression child, Expression parent) {
@@ -59,10 +96,8 @@ public class RecordDesignPattern_008_Varargs {
             case ManyExpression binary when parent instanceof Not -> new Brackets(addBrackets(binary, child));
             case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
             case Not not -> new Not(addBrackets(not.unnegated(), not));
-            case And and when 0 < and.right().length ->
-                    addBrackets((new And(new And(and.left(), and.middle(), and.rightWithoutLast()), and.last())), child);
-            case Or or  when 0 < or.right().length ->
-                    addBrackets((new Or(new Or(or.left(), or.middle(), or.rightWithoutLast()), or.last())), child);
+            case And and when 0 < and.right().length -> addBrackets((new And(and.withoutLast(), and.last())), child);
+            case Or or  when 0 < or.right().length -> addBrackets((new Or(or.withoutLast(), or.last())), child);
             case And and -> new And(addBrackets(and.left(), child), addBrackets(and.middle(), child));
             case Or or -> new Or(addBrackets(or.left(), child), addBrackets(or.middle(), child));
             default -> child;
@@ -75,11 +110,9 @@ public class RecordDesignPattern_008_Varargs {
             case Variable variable -> variable.name();
             case Not not -> "!" + toString(not.unnegated());
             case Brackets inBrackets -> "(" + toString(inBrackets.withoutBrackets()) + ")";
-            case And and when 0 < and.right().length ->
-                    toString(new And(new And(and.left(), and.middle(), and.rightWithoutLast()), and.last()));
+            case And and when 0 < and.right().length -> toString(new And(and.withoutLast(), and.last()));
             case And and -> toString(and.left()) + " && " + toString(and.middle());
-            case Or or when 0 < or.right().length ->
-                    toString(new Or(new Or(or.left(), or.middle(), or.rightWithoutLast()), or.last()));
+            case Or or when 0 < or.right().length -> toString(new Or(or.withoutLast(), or.last()));
             case Or or -> toString(or.left()) + " || " + toString(or.middle());
         };
     }
