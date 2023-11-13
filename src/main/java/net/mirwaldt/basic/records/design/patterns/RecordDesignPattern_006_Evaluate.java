@@ -11,7 +11,7 @@ public class RecordDesignPattern_006_Evaluate {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Value, Variable, Not, Brackets {
+    sealed interface UnaryExpression extends Expression permits Value, Variable, Not {
 
     }
 
@@ -24,10 +24,6 @@ public class RecordDesignPattern_006_Evaluate {
     }
 
     record Not(Expression unnegated) implements UnaryExpression {
-
-    }
-
-    record Brackets(Expression withoutBrackets) implements UnaryExpression {
 
     }
 
@@ -47,7 +43,6 @@ public class RecordDesignPattern_006_Evaluate {
         return switch (expression) {
             case Value value -> value == TRUE;
             case Variable variable -> evaluate(values.get(variable), values);
-            case Brackets brackets -> evaluate(brackets.withoutBrackets(), values);
             case Not not -> !evaluate(not.unnegated(), values);
             case And and -> evaluate(and.left(), values) && evaluate(and.right(), values);
             case Or or -> evaluate(or.left(), values) || evaluate(or.right(), values);

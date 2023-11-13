@@ -43,7 +43,7 @@ public class RecordDesignPattern_005_Enum {
 
     public static Expression addBrackets(Expression child, Expression parent) {
         return switch (child) {
-            case BinaryExpression binary when parent instanceof Not -> new Brackets(addBrackets(binary, child));
+            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(addBrackets(binaryExpression, child)));
             case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
             case Not not -> new Not(addBrackets(not.unnegated(), not));
             case And and -> new And(addBrackets(and.left(), child), addBrackets(and.right(), child));

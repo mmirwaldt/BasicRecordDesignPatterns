@@ -34,7 +34,10 @@ public class RecordDesignPattern_008_Varargs {
 
     sealed interface ManyExpression extends Expression permits And, Or {
         Expression withoutLast();
+
         Expression last();
+
+        boolean isBinary();
 
         static Expression[] rightWithoutLast(Expression[] right) {
             return Arrays.copyOf(right, right.length - 1);
@@ -43,6 +46,7 @@ public class RecordDesignPattern_008_Varargs {
         static Expression last(Expression[] right) {
             return right[right.length - 1];
         }
+
     }
 
     record And(Expression left, Expression middle, Expression...right) implements ManyExpression {
@@ -65,6 +69,11 @@ public class RecordDesignPattern_008_Varargs {
         @Override
         public Expression[] right() {
             return Arrays.copyOf(right, right.length);
+        }
+
+        @Override
+        public boolean isBinary() {
+            return right.length == 0;
         }
     }
 
@@ -89,6 +98,11 @@ public class RecordDesignPattern_008_Varargs {
         public Expression[] right() {
             return Arrays.copyOf(right, right.length);
         }
+
+        @Override
+        public boolean isBinary() {
+            return right.length == 0;
+        }
     }
 
     public static Expression addBrackets(Expression child, Expression parent) {
@@ -96,8 +110,8 @@ public class RecordDesignPattern_008_Varargs {
             case ManyExpression binary when parent instanceof Not -> new Brackets(addBrackets(binary, child));
             case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
             case Not not -> new Not(addBrackets(not.unnegated(), not));
-            case And and when 0 < and.right().length -> addBrackets((new And(and.withoutLast(), and.last())), child);
-            case Or or  when 0 < or.right().length -> addBrackets((new Or(or.withoutLast(), or.last())), child);
+            case And and when and.isBinary() -> addBrackets((new And(and.withoutLast(), and.last())), child);
+            case Or or  when or.isBinary() -> addBrackets((new Or(or.withoutLast(), or.last())), child);
             case And and -> new And(addBrackets(and.left(), child), addBrackets(and.middle(), child));
             case Or or -> new Or(addBrackets(or.left(), child), addBrackets(or.middle(), child));
             default -> child;
@@ -110,9 +124,9 @@ public class RecordDesignPattern_008_Varargs {
             case Variable variable -> variable.name();
             case Not not -> "!" + toString(not.unnegated());
             case Brackets inBrackets -> "(" + toString(inBrackets.withoutBrackets()) + ")";
-            case And and when 0 < and.right().length -> toString(new And(and.withoutLast(), and.last()));
+            case And and when and.isBinary() -> toString(new And(and.withoutLast(), and.last()));
             case And and -> toString(and.left()) + " && " + toString(and.middle());
-            case Or or when 0 < or.right().length -> toString(new Or(or.withoutLast(), or.last()));
+            case Or or when or.isBinary() -> toString(new Or(or.withoutLast(), or.last()));
             case Or or -> toString(or.left()) + " || " + toString(or.middle());
         };
     }
@@ -122,7 +136,6 @@ public class RecordDesignPattern_008_Varargs {
         Variable B = new Variable("B");
         Variable C = new Variable("C");
         Variable D = new Variable("D");
-        Variable E = new Variable("E");
         
         Expression expression = new And(new Or(new And(A, FALSE, new Not(B)), new Not(new And(C, D)), FALSE), TRUE);
         Expression withBrackets = addBrackets(expression, null);

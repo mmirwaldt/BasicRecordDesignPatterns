@@ -42,8 +42,10 @@ public class RecordDesignPattern_003_Hierarchy {
             case And(Or or, Expression e) -> new And(new Brackets(addBrackets(or)), addBrackets(e));
             case And(Expression e, Or or) -> new And(addBrackets(e), new Brackets(addBrackets(or)));
 
+            case Not not -> new Not(addBrackets(not.unnegated()));
             case And and -> new And(addBrackets(and.left()), addBrackets(and.right()));
             case Or or -> new Or(addBrackets(or.left()), addBrackets(or.right()));
+
             default -> expression;
         };
     }

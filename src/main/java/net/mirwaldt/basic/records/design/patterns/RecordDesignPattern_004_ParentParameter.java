@@ -36,7 +36,7 @@ public class RecordDesignPattern_004_ParentParameter {
 
     public static Expression addBrackets(Expression child, Expression parent) {
         return switch (child) {
-            case BinaryExpression binary when parent instanceof Not -> new Brackets(addBrackets(binary, child));
+            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(addBrackets(binaryExpression, child)));
 
             case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
 
