@@ -1,42 +1,35 @@
 package net.mirwaldt.basic.records.design.patterns;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_003_Hierarchy {
-    sealed interface Expression permits UnaryExpression, BinaryExpression {
+public class RecordDesignPattern_04_BracketsForString {
+    sealed interface Expression permits Variable, Not, And, Or, Brackets {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
+    record Variable(String name) implements Expression {
 
     }
 
-    record Variable(String name) implements UnaryExpression {
+    record Brackets(Expression withoutBrackets) implements Expression {
 
     }
 
-    record Not(Expression unnegated) implements UnaryExpression {
+    record Not(Expression unnegated) implements Expression {
 
     }
 
-    record Brackets(Expression withoutBrackets) implements UnaryExpression {
+    record And(Expression left, Expression right) implements Expression {
 
     }
 
-    sealed interface BinaryExpression extends Expression permits And, Or {
-
-    }
-
-    record And(Expression left, Expression right) implements BinaryExpression {
-
-    }
-
-    record Or(Expression left, Expression right) implements BinaryExpression {
+    record Or(Expression left, Expression right) implements Expression {
 
     }
 
     public static Expression addBrackets(Expression expression) {
         return switch (expression) {
-            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(addBrackets(binaryExpression)));
+            case Not(And and) -> new Not(new Brackets(addBrackets(and)));
+            case Not(Or or) -> new Not(new Brackets(addBrackets(or)));
 
             case And(Or left, Or right) -> new And(new Brackets(addBrackets(left)), new Brackets(addBrackets(right)));
             case And(Or or, Expression e) -> new And(new Brackets(addBrackets(or)), addBrackets(e));
@@ -66,7 +59,7 @@ public class RecordDesignPattern_003_Hierarchy {
         Variable C = new Variable("C");
         Variable D = new Variable("D");
         Variable E = new Variable("E");
-        
+
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
         Expression withBrackets = addBrackets(expression);
         System.out.println(toString(withBrackets)); // prints out "(A && !B || !(C && D)) && E"

@@ -1,20 +1,13 @@
 package net.mirwaldt.basic.records.design.patterns;
 
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_005_Enum.Value.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_005_Enum.Value.TRUE;
-
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_005_Enum {
+public class RecordDesignPattern_05_Hierarchy {
     sealed interface Expression permits UnaryExpression, BinaryExpression {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Value, Variable, Not, Brackets {
+    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
 
-    }
-
-    enum Value implements UnaryExpression {
-        TRUE, FALSE;
     }
 
     record Variable(String name) implements UnaryExpression {
@@ -41,20 +34,24 @@ public class RecordDesignPattern_005_Enum {
 
     }
 
-    public static Expression addBrackets(Expression child, Expression parent) {
-        return switch (child) {
-            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(addBrackets(binaryExpression, child)));
-            case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
-            case Not not -> new Not(addBrackets(not.unnegated(), not));
-            case And and -> new And(addBrackets(and.left(), child), addBrackets(and.right(), child));
-            case Or or -> new Or(addBrackets(or.left(), child), addBrackets(or.right(), child));
-            default -> child;
+    public static Expression addBrackets(Expression expression) {
+        return switch (expression) {
+            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(addBrackets(binaryExpression)));
+
+            case And(Or left, Or right) -> new And(new Brackets(addBrackets(left)), new Brackets(addBrackets(right)));
+            case And(Or or, Expression e) -> new And(new Brackets(addBrackets(or)), addBrackets(e));
+            case And(Expression e, Or or) -> new And(addBrackets(e), new Brackets(addBrackets(or)));
+
+            case Not not -> new Not(addBrackets(not.unnegated()));
+            case And and -> new And(addBrackets(and.left()), addBrackets(and.right()));
+            case Or or -> new Or(addBrackets(or.left()), addBrackets(or.right()));
+
+            default -> expression;
         };
     }
 
     public static String toString(Expression expression) {
         return switch (expression) {
-            case Value value -> value.name();
             case Variable variable -> variable.name();
             case Not not -> "!" + toString(not.unnegated());
             case Brackets inBrackets -> "(" + toString(inBrackets.withoutBrackets()) + ")";
@@ -64,12 +61,14 @@ public class RecordDesignPattern_005_Enum {
     }
 
     public static void main(String[] args) {
+        Variable A = new Variable("A");
         Variable B = new Variable("B");
         Variable C = new Variable("C");
         Variable D = new Variable("D");
+        Variable E = new Variable("E");
         
-        Expression expression = new And(new Or(new And(FALSE, new Not(B)), new Not(new And(C, D))), TRUE);
-        Expression withBrackets = addBrackets(expression, null);
-        System.out.println(toString(withBrackets)); // prints out "(FALSE && !B || !(C && D)) && TRUE"
+        Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
+        Expression withBrackets = addBrackets(expression);
+        System.out.println(toString(withBrackets)); // prints out "(A && !B || !(C && D)) && E"
     }
 }

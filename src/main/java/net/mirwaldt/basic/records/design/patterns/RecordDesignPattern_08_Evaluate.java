@@ -2,11 +2,11 @@ package net.mirwaldt.basic.records.design.patterns;
 
 import java.util.Map;
 
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_006_Evaluate.Value.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_006_Evaluate.Value.TRUE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_08_Evaluate.Value.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_08_Evaluate.Value.TRUE;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_006_Evaluate {
+public class RecordDesignPattern_08_Evaluate {
     sealed interface Expression permits UnaryExpression, BinaryExpression {
 
     }

@@ -1,7 +1,7 @@
 package net.mirwaldt.basic.records.design.patterns;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_004_ParentParameter {
+public class RecordDesignPattern_06_ParentParameter {
     sealed interface Expression permits UnaryExpression, BinaryExpression {
 
     }

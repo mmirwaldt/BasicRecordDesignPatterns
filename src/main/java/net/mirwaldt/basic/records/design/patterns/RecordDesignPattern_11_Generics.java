@@ -4,14 +4,14 @@ package net.mirwaldt.basic.records.design.patterns;
 import java.util.Arrays;
 import java.util.List;
 
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_009_Generics.BitValue._0;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_009_Generics.BitValue._1;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_009_Generics.BooleanValue.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_009_Generics.BooleanValue.TRUE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BitValue._0;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BitValue._1;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BooleanValue.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BooleanValue.TRUE;
 
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_009_Generics {
+public class RecordDesignPattern_11_Generics {
     sealed interface Value permits BooleanValue, BitValue {
 
     }

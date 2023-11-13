@@ -1,8 +1,11 @@
 package net.mirwaldt.basic.records.design.patterns;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_001_ToString_1_Flawed {
+public class RecordDesignPattern_02_ToString_Corrected_WithoutPatternMatching {
     sealed interface Expression permits Variable, Not, And, Or {
+        default String inBrackets(Expression expression) {
+            return "(" + expression.toString() + ")";
+        }
     }
 
     record Variable(String name) implements Expression {
@@ -15,14 +18,16 @@ public class RecordDesignPattern_001_ToString_1_Flawed {
     record Not(Expression unnegated) implements Expression {
         @Override
         public String toString() {
-            return "!" + unnegated;
+            return "!" + ((unnegated instanceof Variable variable) ? variable.toString() : inBrackets(unnegated));
         }
     }
 
     record And(Expression left, Expression right) implements Expression {
         @Override
         public String toString() {
-            return left.toString() + " && " + right.toString();
+            return ((left instanceof Or or) ? inBrackets(or) : left.toString())
+                    + " && "
+                    + ((right instanceof Or or) ? inBrackets(or) : right.toString());
         }
     }
 
@@ -43,6 +48,6 @@ public class RecordDesignPattern_001_ToString_1_Flawed {
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
 
         // prints out "A && !B || !C && D && E" which is wrong because it isn't "(A && !B || !(C && D)) && E"
-        System.out.println(expression);
+        System.out.println(expression.toString());
     }
 }

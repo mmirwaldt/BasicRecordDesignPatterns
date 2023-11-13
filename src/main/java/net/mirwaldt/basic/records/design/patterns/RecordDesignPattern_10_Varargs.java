@@ -3,11 +3,11 @@ package net.mirwaldt.basic.records.design.patterns;
 
 import java.util.Arrays;
 
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_008_Varargs.Value.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_008_Varargs.Value.TRUE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Varargs.Value.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Varargs.Value.TRUE;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_008_Varargs {
+public class RecordDesignPattern_10_Varargs {
     sealed interface Expression permits UnaryExpression, ManyExpression {
 
     }

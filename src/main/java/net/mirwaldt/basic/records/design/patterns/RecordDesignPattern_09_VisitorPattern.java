@@ -12,10 +12,10 @@ package net.mirwaldt.basic.records.design.patterns;
 
 import java.util.Map;
 
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_007_VisitorPattern.Value.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_007_VisitorPattern.Value.TRUE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_09_VisitorPattern.Value.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_09_VisitorPattern.Value.TRUE;
 
-public class RecordDesignPattern_007_VisitorPattern {
+public class RecordDesignPattern_09_VisitorPattern {
 
     sealed interface Expression permits UnaryExpression, BinaryExpression {
         <V> V accept(ExpressionVisitor<V> visitor);
