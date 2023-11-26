@@ -24,9 +24,9 @@ public class RecordDesignPattern_03_ToString_Flawed_WithPatternMatching {
     public static String toString(Expression expression) {
         return switch (expression) {
             case Variable variable -> variable.name();
-            case Not not -> "!" + toString(not.unnegated());
-            case And and -> toString(and.left()) + " && " + toString(and.right());
-            case Or or -> toString(or.left()) + " || " + toString(or.right());
+            case Not(var unnegated) -> "!" + toString(unnegated);
+            case And(var left, var right) -> toString(left) + " && " + toString(right);
+            case Or(var left, var right) -> toString(left) + " || " + toString(right);
         };
     }
 

@@ -18,16 +18,18 @@ public class RecordDesignPattern_02_ToString_Corrected_WithoutPatternMatching {
     record Not(Expression unnegated) implements Expression {
         @Override
         public String toString() {
-            return "!" + ((unnegated instanceof Variable variable) ? variable.toString() : inBrackets(unnegated));
+            return "!" + ((unnegated instanceof Variable)
+                    ? unnegated
+                    : inBrackets(unnegated));
         }
     }
 
     record And(Expression left, Expression right) implements Expression {
         @Override
         public String toString() {
-            return ((left instanceof Or or) ? inBrackets(or) : left.toString())
+            return ((left instanceof Or or) ? inBrackets(or) : left)
                     + " && "
-                    + ((right instanceof Or or) ? inBrackets(or) : right.toString());
+                    + ((right instanceof Or or) ? inBrackets(or) : right);
         }
     }
 

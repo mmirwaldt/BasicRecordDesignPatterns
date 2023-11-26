@@ -34,15 +34,15 @@ public class RecordDesignPattern_06_ParentParameter {
 
     }
 
-    public static Expression addBrackets(Expression child, Expression parent) {
+    public static Expression withBrackets(Expression child, Expression parent) {
         return switch (child) {
-            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(addBrackets(binaryExpression, child)));
+            case Not(BinaryExpression binary) -> new Not(new Brackets(withBrackets(binary, child)));
 
-            case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
+            case Or or when parent instanceof And -> new Brackets(withBrackets(or, child));
 
-            case Not not -> new Not(addBrackets(not.unnegated(), not));
-            case And and -> new And(addBrackets(and.left(), child), addBrackets(and.right(), child));
-            case Or or -> new Or(addBrackets(or.left(), child), addBrackets(or.right(), child));
+            case Not(var unnegated) -> new Not(withBrackets(unnegated, child));
+            case And(var left, var right) -> new And(withBrackets(left, child), withBrackets(right, child));
+            case Or(var left, var right) -> new Or(withBrackets(left, child), withBrackets(right, child));
 
             default -> child;
         };
@@ -51,10 +51,10 @@ public class RecordDesignPattern_06_ParentParameter {
     public static String toString(Expression expression) {
         return switch (expression) {
             case Variable variable -> variable.name();
-            case Not not -> "!" + toString(not.unnegated());
-            case Brackets inBrackets -> "(" + toString(inBrackets.withoutBrackets()) + ")";
-            case And and -> toString(and.left()) + " && " + toString(and.right());
-            case Or or -> toString(or.left()) + " || " + toString(or.right());
+            case Not(var unnegated) -> "!" + toString(unnegated);
+            case Brackets(var withoutBrackets) -> "(" + toString(withoutBrackets) + ")";
+            case And(var left, var right) -> toString(left) + " && " + toString(right);
+            case Or(var left, var right) -> toString(left) + " || " + toString(right);
         };
     }
 
@@ -66,7 +66,7 @@ public class RecordDesignPattern_06_ParentParameter {
         Variable E = new Variable("E");
         
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
-        Expression withBrackets = addBrackets(expression, null);
+        Expression withBrackets = withBrackets(expression, null);
         System.out.println(toString(withBrackets)); // prints out "(A && !B || !(C && D)) && E"
     }
 }

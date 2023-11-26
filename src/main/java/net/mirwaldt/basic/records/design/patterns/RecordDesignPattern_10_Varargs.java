@@ -39,69 +39,59 @@ public class RecordDesignPattern_10_Varargs {
 
         boolean isBinary();
 
-        static Expression[] rightWithoutLast(Expression[] right) {
-            return Arrays.copyOf(right, right.length - 1);
-        }
-
-        static Expression last(Expression[] right) {
-            return right[right.length - 1];
-        }
-
     }
 
-    record And(Expression left, Expression middle, Expression...right) implements ManyExpression {
-        And(Expression left, Expression middle, Expression...right) {
+    record And(Expression left, Expression middle, Expression... rights) implements ManyExpression {
+        And(Expression left, Expression middle, Expression... rights) {
             this.left = left;
             this.middle = middle;
-            this.right = Arrays.copyOf(right, right.length);
+            this.rights = Arrays.copyOf(rights, rights.length);
         }
 
         @Override
         public And withoutLast() {
-            return new And(left, middle, ManyExpression.rightWithoutLast(right));
+            return new And(left, middle, Arrays.copyOf(rights, rights.length - 1));
         }
 
         @Override
         public Expression last() {
-            return ManyExpression.last(right);
+            return rights[rights.length - 1];
         }
 
-        @Override
-        public Expression[] right() {
-            return Arrays.copyOf(right, right.length);
+        public Expression[] rights() {
+            return Arrays.copyOf(rights, rights.length);
         }
 
         @Override
         public boolean isBinary() {
-            return right.length == 0;
+            return rights.length == 0;
         }
     }
 
-    record Or(Expression left, Expression middle, Expression...right) implements ManyExpression {
-        Or(Expression left, Expression middle, Expression...right) {
+    record Or(Expression left, Expression middle, Expression... rights) implements ManyExpression {
+        Or(Expression left, Expression middle, Expression... rights) {
             this.left = left;
             this.middle = middle;
-            this.right = Arrays.copyOf(right, right.length);
+            this.rights = Arrays.copyOf(rights, rights.length);
         }
 
         @Override
         public Or withoutLast() {
-            return new Or(left, middle, ManyExpression.rightWithoutLast(right));
+            return new Or(left, middle, Arrays.copyOf(rights, rights.length - 1));
         }
 
         @Override
         public Expression last() {
-            return ManyExpression.last(right);
+            return rights[rights.length - 1];
         }
 
-        @Override
-        public Expression[] right() {
-            return Arrays.copyOf(right, right.length);
+        public Expression[] rights() {
+            return Arrays.copyOf(rights, rights.length);
         }
 
         @Override
         public boolean isBinary() {
-            return right.length == 0;
+            return rights.length == 0;
         }
     }
 
@@ -109,11 +99,11 @@ public class RecordDesignPattern_10_Varargs {
         return switch (child) {
             case ManyExpression binary when parent instanceof Not -> new Brackets(addBrackets(binary, child));
             case Or or when parent instanceof And -> new Brackets(addBrackets(or, child));
-            case Not not -> new Not(addBrackets(not.unnegated(), not));
-            case And and when and.isBinary() -> addBrackets((new And(and.withoutLast(), and.last())), child);
-            case Or or  when or.isBinary() -> addBrackets((new Or(or.withoutLast(), or.last())), child);
-            case And and -> new And(addBrackets(and.left(), child), addBrackets(and.middle(), child));
-            case Or or -> new Or(addBrackets(or.left(), child), addBrackets(or.middle(), child));
+            case Not(var left) -> new Not(addBrackets(left, child));
+            case And and when and.isBinary() -> new And(addBrackets(and.left(), child), addBrackets(and.middle(), child));
+            case And and -> addBrackets((new And(and.withoutLast(), and.last())), child);
+            case Or or when or.isBinary() -> new Or(addBrackets(or.left(), child), addBrackets(or.middle(), child));
+            case Or or-> addBrackets((new Or(or.withoutLast(), or.last())), child);
             default -> child;
         };
     }
@@ -122,12 +112,12 @@ public class RecordDesignPattern_10_Varargs {
         return switch (expression) {
             case Value value -> value.name();
             case Variable variable -> variable.name();
-            case Not not -> "!" + toString(not.unnegated());
-            case Brackets inBrackets -> "(" + toString(inBrackets.withoutBrackets()) + ")";
-            case And and when and.isBinary() -> toString(new And(and.withoutLast(), and.last()));
-            case And and -> toString(and.left()) + " && " + toString(and.middle());
-            case Or or when or.isBinary() -> toString(new Or(or.withoutLast(), or.last()));
-            case Or or -> toString(or.left()) + " || " + toString(or.middle());
+            case Not(var unnegated) -> "!" + toString(unnegated);
+            case Brackets(var withoutBrackets) -> "(" + toString(withoutBrackets) + ")";
+            case And and when and.isBinary() -> toString(and.left()) + " && " + toString(and.middle());
+            case And and -> toString(new And(and.withoutLast(), and.last()));
+            case Or or when or.isBinary() -> toString(or.left()) + " || " + toString(or.middle());
+            case Or or -> toString(new Or(or.withoutLast(), or.last()));
         };
     }
 

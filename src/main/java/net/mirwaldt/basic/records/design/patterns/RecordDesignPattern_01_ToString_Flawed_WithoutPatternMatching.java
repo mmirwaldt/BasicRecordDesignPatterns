@@ -1,7 +1,7 @@
 package net.mirwaldt.basic.records.design.patterns;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_01_ToString_Flawed {
+public class RecordDesignPattern_01_ToString_Flawed_WithoutPatternMatching {
     sealed interface Expression permits Variable, Not, And, Or {
     }
 

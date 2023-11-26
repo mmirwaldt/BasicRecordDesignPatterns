@@ -34,17 +34,17 @@ public class RecordDesignPattern_05_Hierarchy {
 
     }
 
-    public static Expression addBrackets(Expression expression) {
+    public static Expression withBrackets(Expression expression) {
         return switch (expression) {
-            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(addBrackets(binaryExpression)));
+            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(withBrackets(binaryExpression)));
 
-            case And(Or left, Or right) -> new And(new Brackets(addBrackets(left)), new Brackets(addBrackets(right)));
-            case And(Or or, Expression e) -> new And(new Brackets(addBrackets(or)), addBrackets(e));
-            case And(Expression e, Or or) -> new And(addBrackets(e), new Brackets(addBrackets(or)));
+            case And(Or left, Or right) -> new And(new Brackets(withBrackets(left)), new Brackets(withBrackets(right)));
+            case And(Or or, Expression e) -> new And(new Brackets(withBrackets(or)), withBrackets(e));
+            case And(Expression e, Or or) -> new And(withBrackets(e), new Brackets(withBrackets(or)));
 
-            case Not not -> new Not(addBrackets(not.unnegated()));
-            case And and -> new And(addBrackets(and.left()), addBrackets(and.right()));
-            case Or or -> new Or(addBrackets(or.left()), addBrackets(or.right()));
+            case Not(var unnegated) -> new Not(withBrackets(unnegated));
+            case And(var left, var right) -> new And(withBrackets(left), withBrackets(right));
+            case Or(var left, var right) -> new Or(withBrackets(left), withBrackets(right));
 
             default -> expression;
         };
@@ -53,10 +53,10 @@ public class RecordDesignPattern_05_Hierarchy {
     public static String toString(Expression expression) {
         return switch (expression) {
             case Variable variable -> variable.name();
-            case Not not -> "!" + toString(not.unnegated());
-            case Brackets inBrackets -> "(" + toString(inBrackets.withoutBrackets()) + ")";
-            case And and -> toString(and.left()) + " && " + toString(and.right());
-            case Or or -> toString(or.left()) + " || " + toString(or.right());
+            case Not(var unnegated) -> "!" + toString(unnegated);
+            case Brackets(var withoutBrackets) -> "(" + toString(withoutBrackets) + ")";
+            case And(var left, var right) -> toString(left) + " && " + toString(right);
+            case Or(var left, var right) -> toString(left) + " || " + toString(right);
         };
     }
 
@@ -68,7 +68,7 @@ public class RecordDesignPattern_05_Hierarchy {
         Variable E = new Variable("E");
         
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
-        Expression withBrackets = addBrackets(expression);
+        Expression withBrackets = withBrackets(expression);
         System.out.println(toString(withBrackets)); // prints out "(A && !B || !(C && D)) && E"
     }
 }

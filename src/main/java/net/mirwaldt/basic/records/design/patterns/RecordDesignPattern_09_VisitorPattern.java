@@ -86,26 +86,14 @@ public class RecordDesignPattern_09_VisitorPattern {
 
         V visit(Brackets brackets);
 
-        default V visit(UnaryExpression unaryExpression) {
-            return switch (unaryExpression) {
+        default V visit(Expression expression) {
+            return switch (expression) {
                 case Value value -> visit(value);
                 case Variable variable -> visit(variable);
                 case Not not -> visit(not);
                 case Brackets brackets -> visit(brackets);
-            };
-        }
-
-        default V visit(BinaryExpression binaryExpression) {
-            return switch (binaryExpression) {
                 case And and -> visit(and);
                 case Or or -> visit(or);
-            };
-        }
-
-        default V visit(Expression expression) {
-            return switch (expression) {
-                case UnaryExpression unaryExpression -> visit(unaryExpression);
-                case BinaryExpression binaryExpression -> visit(binaryExpression);
             };
         }
     }

@@ -43,9 +43,9 @@ public class RecordDesignPattern_08_Evaluate {
         return switch (expression) {
             case Value value -> value == TRUE;
             case Variable variable -> evaluate(values.get(variable), values);
-            case Not not -> !evaluate(not.unnegated(), values);
-            case And and -> evaluate(and.left(), values) && evaluate(and.right(), values);
-            case Or or -> evaluate(or.left(), values) || evaluate(or.right(), values);
+            case Not(var unnegated) -> !evaluate(unnegated, values);
+            case And(var left, var right) -> evaluate(left, values) && evaluate(right, values);
+            case Or(var left, var right) -> evaluate(left, values) || evaluate(right, values);
         };
     }
 
