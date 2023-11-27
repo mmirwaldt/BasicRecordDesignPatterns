@@ -19,7 +19,7 @@ You need Java 21 to run the examples because "record patterns" were added in Jav
 
 ## What examples can you find here?
 
-All examples from the slides can be found here:
+All examples from the slides can be found here:    
 https://github.com/mmirwaldt/BasicRecordDesignPatterns/tree/master/src/main/java/net/mirwaldt/basic/records/design/patterns
 
 ### Who owns the copyright for this project?
