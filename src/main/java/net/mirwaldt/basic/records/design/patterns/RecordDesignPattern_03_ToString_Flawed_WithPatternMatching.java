@@ -23,7 +23,7 @@ public class RecordDesignPattern_03_ToString_Flawed_WithPatternMatching {
 
     public static String toString(Expression expression) {
         return switch (expression) {
-            case Variable variable -> variable.name();
+            case Variable(var name) -> name;
             case Not(var unnegated) -> "!" + toString(unnegated);
             case And(var left, var right) -> toString(left) + " && " + toString(right);
             case Or(var left, var right) -> toString(left) + " || " + toString(right);

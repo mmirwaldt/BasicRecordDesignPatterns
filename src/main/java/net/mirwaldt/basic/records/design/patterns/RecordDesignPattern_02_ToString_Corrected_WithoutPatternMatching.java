@@ -49,7 +49,7 @@ public class RecordDesignPattern_02_ToString_Corrected_WithoutPatternMatching {
 
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
 
-        // prints out "A && !B || !C && D && E" which is wrong because it isn't "(A && !B || !(C && D)) && E"
+        // prints out "(A && !B || !(C && D)) && E" which is right
         System.out.println(expression.toString());
     }
 }

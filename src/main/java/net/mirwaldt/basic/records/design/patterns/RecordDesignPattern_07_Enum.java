@@ -54,7 +54,7 @@ public class RecordDesignPattern_07_Enum {
 
     public static String toString(Expression expression) {
         return switch (expression) {
-            case Value value -> value.name();
+            case Value value -> value.toString();
             case Variable variable -> variable.name();
             case Not(var unnegated) -> "!" + toString(unnegated);
             case Brackets(var withoutBrackets) -> "(" + toString(withoutBrackets) + ")";

@@ -27,6 +27,7 @@ public class RecordDesignPattern_11_Generics {
         }
     }
 
+    // ...
     enum BooleanValue implements Value<BooleanValue> {
         TRUE, FALSE;
 
@@ -134,9 +135,9 @@ public class RecordDesignPattern_11_Generics {
 
     public static <V extends Value<V>> String toString(Expression<V> expression) {
         return switch (expression) {
-            case BooleanValue booleanValue -> booleanValue.name();
-            case BitValue bitValue -> bitValue.name().substring(1);
-            case Variable<V> variable -> variable.name();
+            case BooleanValue booleanValue -> booleanValue.toString();
+            case BitValue bitValue -> bitValue.toString().substring(1);
+            case Variable<V>(var name) -> name;
             case Not<V>(var unnegated) -> "!" + toString(unnegated);
             case Brackets<V>(var withoutBrackets) -> "(" + toString(withoutBrackets) + ")";
             case And<V> and when and.isBinary() -> toString(and.left()) + " && " + toString(and.middle());
@@ -169,9 +170,9 @@ public class RecordDesignPattern_11_Generics {
         Expression<BitValue> bitExpressionWithBrackets = withBrackets(bitExpression, null);
         // prints out "(A && 1 && !B || !(C && D) || 0) && 1"
         System.out.println(toString(bitExpressionWithBrackets));
-        // false
+        // prints out _0
         System.out.println(evaluate(bitExpression, Map.of(A, _0, B, _0, C, _1, D, _1)));
-        // true
+        // prints out _1
         System.out.println(evaluate(bitExpression, Map.of(A, _1, B, _0, C, _1, D, _0)));
 
         Variable<BooleanValue> a = new Variable<>("A");
@@ -185,9 +186,9 @@ public class RecordDesignPattern_11_Generics {
 
         // prints out "(A && TRUE && !B || !(C && C) || FALSE) && TRUE"
         System.out.println(toString(booleanExpressionWithBrackets));
-        // false
+        // prints out FALSE
         System.out.println(evaluate(booleanExpression, Map.of(a, FALSE, b, FALSE, c, TRUE, d, TRUE)));
-        // true
+        // prints out TRUE
         System.out.println(evaluate(booleanExpression, Map.of(a, TRUE, b, FALSE, c, TRUE, d, FALSE)));
     }
 }
