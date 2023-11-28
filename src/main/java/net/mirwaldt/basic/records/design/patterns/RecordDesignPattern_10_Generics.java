@@ -5,14 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BitValue._0;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BitValue._1;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BooleanValue.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_11_Generics.BooleanValue.TRUE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BitValue._0;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BitValue._1;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BooleanValue.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BooleanValue.TRUE;
 
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_11_Generics {
+public class RecordDesignPattern_10_Generics {
     sealed interface Value<V extends Value<V>> extends UnaryExpression<V> permits BooleanValue, BitValue {
         V true_();
         V false_();
@@ -81,13 +81,17 @@ public class RecordDesignPattern_11_Generics {
     }
 
     record And<V extends Value<V>>(Expression<V> left, Expression<V> middle, List<Expression<V>> rights) implements ManyExpression<V> {
+        And { // for libraries
+            rights = List.copyOf(rights);
+        }
+
         @SafeVarargs
         And(Expression<V> left, Expression<V> middle, Expression<V>... last) {
             this(left, middle, List.copyOf(Arrays.asList(last)));
         }
 
         public And<V> withoutLast() {
-            return new And<>(left, middle, List.copyOf(rights.subList(0, rights.size() - 1)));
+            return new And<>(left, middle, rights.subList(0, rights.size() - 1));
         }
 
         public Expression<V> last() {
@@ -100,13 +104,17 @@ public class RecordDesignPattern_11_Generics {
     }
 
     record Or<V extends Value<V>>(Expression<V> left, Expression<V> middle, List<Expression<V>> rights) implements ManyExpression<V> {
+        Or {  // for libraries
+            rights = List.copyOf(rights);
+        }
+
         @SafeVarargs
         Or(Expression<V> left, Expression<V> middle, Expression<V>... last) {
             this(left, middle, List.copyOf(Arrays.asList(last)));
         }
 
         public Or<V> withoutLast() {
-            return new Or<>(left, middle, List.copyOf(rights.subList(0, rights.size() - 1)));
+            return new Or<>(left, middle, rights.subList(0, rights.size() - 1));
         }
 
         public Expression<V> last() {
