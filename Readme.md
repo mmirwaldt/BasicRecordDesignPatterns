@@ -1,4 +1,4 @@
-# Java Streams for the professional
+# Basic record design patterns
 
 ### What is this?
 
