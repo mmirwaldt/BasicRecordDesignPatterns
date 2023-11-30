@@ -7,15 +7,15 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_08_
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_08_Evaluate {
-    sealed interface Expression permits UnaryExpression, BinaryExpression {
+    sealed interface Expression permits Value, UnaryExpression, BinaryExpression {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Value, Variable, Not {
+    sealed interface UnaryExpression extends Expression permits Variable, Not {
 
     }
 
-    enum Value implements UnaryExpression {
+    enum Value implements Expression {
         TRUE, FALSE;
     }
 

@@ -17,15 +17,15 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_09_
 
 public class RecordDesignPattern_09_VisitorPattern {
 
-    sealed interface Expression permits UnaryExpression, BinaryExpression {
+    sealed interface Expression permits Value, UnaryExpression, BinaryExpression {
         <V> V accept(ExpressionVisitor<V> visitor);
     }
 
-    sealed interface UnaryExpression extends Expression permits Value, Variable, Not, Brackets {
+    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
 
     }
 
-    enum Value implements UnaryExpression {
+    enum Value implements Expression {
         TRUE, FALSE;
 
         @Override

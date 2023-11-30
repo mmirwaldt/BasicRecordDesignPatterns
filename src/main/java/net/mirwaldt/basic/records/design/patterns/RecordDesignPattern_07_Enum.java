@@ -5,15 +5,15 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_07_
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_07_Enum {
-    sealed interface Expression permits UnaryExpression, BinaryExpression {
+    sealed interface Expression permits Value, UnaryExpression, BinaryExpression {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Value, Variable, Not, Brackets {
+    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
 
     }
 
-    enum Value implements UnaryExpression {
+    enum Value implements Expression {
         TRUE, FALSE;
     }
 
