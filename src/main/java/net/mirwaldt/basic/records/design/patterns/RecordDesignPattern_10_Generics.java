@@ -13,17 +13,17 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_10_Generics {
-    sealed interface Value<V extends Value<V>> extends UnaryExpression<V> permits BooleanValue, BitValue {
-        V true_();
-        V false_();
+    sealed interface Value<V extends Value<V>> extends Expression<V> permits BooleanValue, BitValue {
+        V getTrue();
+        V getFalse();
         default V negate() {
-            return (this == true_()) ? false_() : true_();
+            return (this == getTrue()) ? getFalse() : getTrue();
         }
         default V and(V right) {
-            return (this == true_() && right == true_()) ? true_() : false_();
+            return (this == getTrue() && right == getTrue()) ? getTrue() : getFalse();
         }
         default V or(V right) {
-            return (this == true_() || right == true_()) ? true_() : false_();
+            return (this == getTrue() || right == getTrue()) ? getTrue() : getFalse();
         }
     }
 
@@ -32,12 +32,12 @@ public class RecordDesignPattern_10_Generics {
         TRUE, FALSE;
 
         @Override
-        public BooleanValue true_() {
+        public BooleanValue getTrue() {
             return TRUE;
         }
 
         @Override
-        public BooleanValue false_() {
+        public BooleanValue getFalse() {
             return FALSE;
         }
     }
@@ -46,21 +46,21 @@ public class RecordDesignPattern_10_Generics {
         _1, _0;
 
         @Override
-        public BitValue true_() {
+        public BitValue getTrue() {
             return _1;
         }
 
         @Override
-        public BitValue false_() {
+        public BitValue getFalse() {
             return _0;
         }
     }
 
-    sealed interface Expression<V extends Value<V>> permits UnaryExpression, ManyExpression {
+    sealed interface Expression<V extends Value<V>> permits Value, UnaryExpression, ManyExpression {
 
     }
 
-    sealed interface UnaryExpression<V extends Value<V>> extends Expression<V> permits Value, Variable, Not, Brackets {
+    sealed interface UnaryExpression<V extends Value<V>> extends Expression<V> permits Variable, Not, Brackets {
 
     }
 
