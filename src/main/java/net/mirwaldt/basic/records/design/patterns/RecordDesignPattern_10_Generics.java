@@ -15,13 +15,17 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_
 public class RecordDesignPattern_10_Generics {
     sealed interface Value<V extends Value<V>> extends Expression<V> permits BooleanValue, BitValue {
         V getTrue();
+
         V getFalse();
+
         default V negate() {
             return (this == getTrue()) ? getFalse() : getTrue();
         }
+
         default V and(V right) {
             return (this == getTrue() && right == getTrue()) ? getTrue() : getFalse();
         }
+
         default V or(V right) {
             return (this == getTrue() || right == getTrue()) ? getTrue() : getFalse();
         }
@@ -56,86 +60,88 @@ public class RecordDesignPattern_10_Generics {
         }
     }
 
-    sealed interface Expression<V extends Value<V>> permits Value, UnaryExpression, ManyExpression {
+    sealed interface Expression<V extends Value<V>> permits Value, WithOneOperand, WithManyOperands {
 
     }
 
-    sealed interface UnaryExpression<V extends Value<V>> extends Expression<V> permits Variable, Not, Brackets {
+    sealed interface WithOneOperand<V extends Value<V>> extends Expression<V> permits Variable, Not, Brackets {
 
     }
 
-    record Variable<V extends Value<V>>(String name) implements UnaryExpression<V> {
+    record Variable<V extends Value<V>>(String name) implements WithOneOperand<V> {
 
     }
 
-    record Not<V extends Value<V>>(Expression<V> unnegated) implements UnaryExpression<V> {
+    record Not<V extends Value<V>>(Expression<V> unnegated) implements WithOneOperand<V> {
 
     }
 
-    record Brackets<V extends Value<V>>(Expression<V> withoutBrackets) implements UnaryExpression<V> {
+    record Brackets<V extends Value<V>>(Expression<V> withoutBrackets) implements WithOneOperand<V> {
 
     }
 
-    sealed interface ManyExpression<V extends Value<V>> extends Expression<V> permits And, Or {
+    sealed interface WithManyOperands<V extends Value<V>> extends Expression<V> permits And, Or {
         boolean isBinary();
     }
 
-    record And<V extends Value<V>>(Expression<V> left, Expression<V> middle, List<Expression<V>> rights) implements ManyExpression<V> {
+    record And<V extends Value<V>>(Expression<V> first, Expression<V> second,
+                                   List<Expression<V>> remaining) implements WithManyOperands<V> {
         And { // for libraries
-            rights = List.copyOf(rights);
+            remaining = List.copyOf(remaining);
         }
 
         @SafeVarargs
-        And(Expression<V> left, Expression<V> middle, Expression<V>... last) {
-            this(left, middle, List.copyOf(Arrays.asList(last)));
+        And(Expression<V> first, Expression<V> second, Expression<V>... remaining) {
+            this(first, second, List.copyOf(Arrays.asList(remaining)));
         }
 
         public And<V> withoutLast() {
-            return new And<>(left, middle, rights.subList(0, rights.size() - 1));
+            return new And<>(first, second, remaining.subList(0, remaining.size() - 1));
         }
 
         public Expression<V> last() {
-            return rights.get(rights.size() - 1);
+            return remaining.get(remaining.size() - 1);
         }
 
         public boolean isBinary() {
-            return rights.isEmpty();
+            return remaining.isEmpty();
         }
     }
 
-    record Or<V extends Value<V>>(Expression<V> left, Expression<V> middle, List<Expression<V>> rights) implements ManyExpression<V> {
+    record Or<V extends Value<V>>(Expression<V> first, Expression<V> second,
+                                  List<Expression<V>> remaining) implements WithManyOperands<V> {
         Or {  // for libraries
-            rights = List.copyOf(rights);
+            remaining = List.copyOf(remaining);
         }
 
         @SafeVarargs
-        Or(Expression<V> left, Expression<V> middle, Expression<V>... last) {
-            this(left, middle, List.copyOf(Arrays.asList(last)));
+        Or(Expression<V> first, Expression<V> second, Expression<V>... remaining) {
+            this(first, second, List.copyOf(Arrays.asList(remaining)));
         }
 
         public Or<V> withoutLast() {
-            return new Or<>(left, middle, rights.subList(0, rights.size() - 1));
+            return new Or<>(first, second, remaining.subList(0, remaining.size() - 1));
         }
 
         public Expression<V> last() {
-            return rights.get(rights.size() - 1);
+            return remaining.get(remaining.size() - 1);
         }
 
         public boolean isBinary() {
-            return rights.isEmpty();
+            return remaining.isEmpty();
         }
     }
 
     public static <V extends Value<V>> Expression<V> withBrackets(Expression<V> child, Expression<V> parent) {
         return switch (child) {
-            case ManyExpression<V> binary when parent instanceof Not -> new Brackets<V>(withBrackets(binary, child));
+            case WithManyOperands<V> many when parent instanceof Not -> new Brackets<V>(withBrackets(many, child));
             case Or<V> or when parent instanceof And -> new Brackets<V>(withBrackets(or, child));
             case Not<V>(var unnegated) -> new Not<V>(withBrackets(unnegated, child));
             case And<V> and when and.isBinary() ->
-                    new And<>(withBrackets(and.left(), child), withBrackets(and.middle(), child));
+                    new And<>(withBrackets(and.first(), child), withBrackets(and.second(), child));
             case And<V> and -> withBrackets((new And<>(and.withoutLast(), and.last())), child);
             case Or<V> or when or.isBinary() ->
-                    new Or<>(withBrackets(or.left(), child), withBrackets(or.middle(), child));
+                    new Or<>(withBrackets(or.first(), child), withBrackets(or.second(), child));
             case Or<V> or -> withBrackets((new Or<>(or.withoutLast(), or.last())), child);
             default -> child;
         };
@@ -148,9 +154,9 @@ public class RecordDesignPattern_10_Generics {
             case Variable<V>(var name) -> name;
             case Not<V>(var unnegated) -> "!" + toString(unnegated);
             case Brackets<V>(var withoutBrackets) -> "(" + toString(withoutBrackets) + ")";
-            case And<V> and when and.isBinary() -> toString(and.left()) + " && " + toString(and.middle());
+            case And<V> and when and.isBinary() -> toString(and.first()) + " && " + toString(and.second());
             case And<V> and -> toString(new And<>(and.withoutLast(), and.last()));
-            case Or<V> or when or.isBinary() -> toString(or.left()) + " || " + toString(or.middle());
+            case Or<V> or when or.isBinary() -> toString(or.first()) + " || " + toString(or.second());
             case Or<V> or -> toString(new Or<>(or.withoutLast(), or.last()));
         };
     }
@@ -159,9 +165,9 @@ public class RecordDesignPattern_10_Generics {
         return switch (expression) {
             case Variable<V> variable -> evaluate(values.get(variable), values);
             case Not<V>(var unnegated) -> evaluate(unnegated, values).negate();
-            case And<V> and when and.isBinary()  -> evaluate(and.left(), values).and(evaluate(and.middle(), values));
+            case And<V> and when and.isBinary() -> evaluate(and.first(), values).and(evaluate(and.second(), values));
             case And<V> and -> evaluate(new And<>(and.withoutLast(), and.last()), values);
-            case Or<V> or when or.isBinary()  -> evaluate(or.left(), values).or(evaluate(or.middle(), values));
+            case Or<V> or when or.isBinary() -> evaluate(or.first(), values).or(evaluate(or.second(), values));
             case Or<V> or -> evaluate(new Or<>(or.withoutLast(), or.last()), values);
             case Expression<V> expr -> (V) expr;
         };
