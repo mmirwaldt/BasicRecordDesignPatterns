@@ -5,10 +5,10 @@ import java.util.Objects;
 record PointAsRecord(int x, int y) {
 };
 
-public class RecordAsClass {
+public class PointAsClass {
     private final int x, y;
 
-    public RecordAsClass(int x, int y) {
+    public PointAsClass(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -23,8 +23,8 @@ public class RecordAsClass {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof RecordAsClass)) return false;
-        RecordAsClass other = (RecordAsClass) o;
+        if (!(o instanceof PointAsClass)) return false;
+        PointAsClass other = (PointAsClass) o;
         return other.x == x && other.y == y;
     }
 
