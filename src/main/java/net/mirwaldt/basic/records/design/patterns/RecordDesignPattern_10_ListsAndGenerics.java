@@ -5,15 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BitValue._0;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BitValue._1;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BooleanValue.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_Generics.BooleanValue.TRUE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BitValue._0;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BitValue._1;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BooleanValue.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BooleanValue.TRUE;
 
 
 @SuppressWarnings("ClassEscapesDefinedScope")
-public class RecordDesignPattern_10_Generics {
-    sealed interface Value<V extends Value<V>> extends Expression<V> permits BooleanValue, BitValue {
+public class RecordDesignPattern_10_ListsAndGenerics {
+    sealed interface Value<V extends Value<V>> extends WithNoOperand<V> permits BooleanValue, BitValue {
         V getTrue();
 
         V getFalse();
@@ -31,7 +31,6 @@ public class RecordDesignPattern_10_Generics {
         }
     }
 
-    // ...
     enum BooleanValue implements Value<BooleanValue> {
         TRUE, FALSE;
 
@@ -60,15 +59,19 @@ public class RecordDesignPattern_10_Generics {
         }
     }
 
-    sealed interface Expression<V extends Value<V>> permits Value, WithOneOperand, WithManyOperands {
+    sealed interface Expression<V extends Value<V>> permits WithNoOperand, WithOneOperand, WithManyOperands {
 
     }
 
-    sealed interface WithOneOperand<V extends Value<V>> extends Expression<V> permits Variable, Not, Brackets {
+    sealed interface WithNoOperand<V extends Value<V>> extends Expression<V> permits Value, Variable {
 
     }
 
-    record Variable<V extends Value<V>>(String name) implements WithOneOperand<V> {
+    sealed interface WithOneOperand<V extends Value<V>> extends Expression<V> permits Not, Brackets {
+
+    }
+
+    record Variable<V extends Value<V>>(String name) implements WithNoOperand<V> {
 
     }
 
