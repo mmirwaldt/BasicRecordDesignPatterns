@@ -53,6 +53,10 @@ public class RecordDesignPattern_04_BracketsForString {
         };
     }
 
+    /*
+    Output:
+    (A && !B || !(C && D)) && E
+     */
     public static void main(String[] args) {
         Variable A = new Variable("A");
         Variable B = new Variable("B");
@@ -62,6 +66,6 @@ public class RecordDesignPattern_04_BracketsForString {
 
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
         Expression withBrackets = withBrackets(expression);
-        System.out.println(toString(withBrackets)); // prints out "(A && !B || !(C && D)) && E"
+        System.out.println(toString(withBrackets));
     }
 }

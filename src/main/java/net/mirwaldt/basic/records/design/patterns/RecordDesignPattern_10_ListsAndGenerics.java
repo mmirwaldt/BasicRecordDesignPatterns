@@ -1,7 +1,6 @@
 package net.mirwaldt.basic.records.design.patterns;
 
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -95,7 +94,7 @@ public class RecordDesignPattern_10_ListsAndGenerics {
 
         @SafeVarargs
         And(Expression<V> first, Expression<V> second, Expression<V>... remaining) {
-            this(first, second, List.copyOf(Arrays.asList(remaining)));
+            this(first, second, List.of(remaining));
         }
 
         public And<V> withoutLast() {
@@ -119,7 +118,7 @@ public class RecordDesignPattern_10_ListsAndGenerics {
 
         @SafeVarargs
         Or(Expression<V> first, Expression<V> second, Expression<V>... remaining) {
-            this(first, second, List.copyOf(Arrays.asList(remaining)));
+            this(first, second, List.of(remaining));
         }
 
         public Or<V> withoutLast() {
@@ -176,6 +175,15 @@ public class RecordDesignPattern_10_ListsAndGenerics {
         };
     }
 
+    /*
+    Output:
+    (A && 1 && !B || !(C && D) || 0) && 1
+    _0
+    _1
+    (A && TRUE && !B || !(C && D) || FALSE) && TRUE
+    FALSE
+    TRUE
+     */
     public static void main(String[] args) {
         Variable<BitValue> A = new Variable<>("A");
         Variable<BitValue> B = new Variable<>("B");

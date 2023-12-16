@@ -7,35 +7,39 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_08_
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_08_Evaluate {
-    sealed interface Expression permits Value, UnaryExpression, BinaryExpression {
+    sealed interface Expression permits WithNoOperand, WithOneOperand, WithTwoOperands {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not {
+    sealed interface WithNoOperand extends Expression permits Variable, Value {
 
     }
 
-    enum Value implements Expression {
+    sealed interface WithOneOperand extends Expression permits Not {
+
+    }
+
+    enum Value implements WithNoOperand {
         TRUE, FALSE;
     }
 
-    record Variable(String name) implements UnaryExpression {
+    record Variable(String name) implements WithNoOperand {
 
     }
 
-    record Not(Expression unnegated) implements UnaryExpression {
+    record Not(Expression unnegated) implements WithOneOperand {
 
     }
 
-    sealed interface BinaryExpression extends Expression permits And, Or {
+    sealed interface WithTwoOperands extends Expression permits And, Or {
 
     }
 
-    record And(Expression left, Expression right) implements BinaryExpression {
+    record And(Expression left, Expression right) implements WithTwoOperands {
 
     }
 
-    record Or(Expression left, Expression right) implements BinaryExpression {
+    record Or(Expression left, Expression right) implements WithTwoOperands {
 
     }
 
@@ -49,6 +53,11 @@ public class RecordDesignPattern_08_Evaluate {
         };
     }
 
+    /*
+    Output:
+    false
+    true
+     */
     public static void main(String[] args) {
         Variable B = new Variable("B");
         Variable C = new Variable("C");

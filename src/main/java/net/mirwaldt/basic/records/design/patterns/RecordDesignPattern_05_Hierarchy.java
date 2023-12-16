@@ -2,41 +2,45 @@ package net.mirwaldt.basic.records.design.patterns;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_05_Hierarchy {
-    sealed interface Expression permits UnaryExpression, BinaryExpression {
+    sealed interface Expression permits WithNoOperand, WithOneOperand, WithTwoOperands {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
+    sealed interface WithNoOperand extends Expression permits Variable {
 
     }
 
-    record Variable(String name) implements UnaryExpression {
+    sealed interface WithOneOperand extends Expression permits Not, Brackets {
 
     }
 
-    record Not(Expression unnegated) implements UnaryExpression {
+    record Variable(String name) implements WithNoOperand {
 
     }
 
-    record Brackets(Expression withoutBrackets) implements UnaryExpression {
+    record Not(Expression unnegated) implements WithOneOperand {
 
     }
 
-    sealed interface BinaryExpression extends Expression permits And, Or {
+    record Brackets(Expression withoutBrackets) implements WithOneOperand {
 
     }
 
-    record And(Expression left, Expression right) implements BinaryExpression {
+    sealed interface WithTwoOperands extends Expression permits And, Or {
 
     }
 
-    record Or(Expression left, Expression right) implements BinaryExpression {
+    record And(Expression left, Expression right) implements WithTwoOperands {
+
+    }
+
+    record Or(Expression left, Expression right) implements WithTwoOperands {
 
     }
 
     public static Expression withBrackets(Expression expression) {
         return switch (expression) {
-            case Not(BinaryExpression binaryExpression) -> new Not(new Brackets(withBrackets(binaryExpression)));
+            case Not(WithTwoOperands withTwoOperands) -> new Not(new Brackets(withBrackets(withTwoOperands)));
 
             case And(Or left, Or right) -> new And(new Brackets(withBrackets(left)), new Brackets(withBrackets(right)));
             case And(Or or, Expression e) -> new And(new Brackets(withBrackets(or)), withBrackets(e));
@@ -60,6 +64,10 @@ public class RecordDesignPattern_05_Hierarchy {
         };
     }
 
+    /*
+    Output:
+    (A && !B || !(C && D)) && E
+     */
     public static void main(String[] args) {
         Variable A = new Variable("A");
         Variable B = new Variable("B");
@@ -69,6 +77,6 @@ public class RecordDesignPattern_05_Hierarchy {
         
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
         Expression withBrackets = withBrackets(expression);
-        System.out.println(toString(withBrackets)); // prints out "(A && !B || !(C && D)) && E"
+        System.out.println(toString(withBrackets));
     }
 }

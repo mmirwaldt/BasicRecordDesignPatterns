@@ -40,6 +40,10 @@ public class RecordDesignPattern_02_ToString_Corrected_WithoutPatternMatching {
         }
     }
 
+    /*
+    Output:
+    (A && !B || !(C && D)) && E
+     */
     public static void main(String[] args) {
         Variable A = new Variable("A");
         Variable B = new Variable("B");

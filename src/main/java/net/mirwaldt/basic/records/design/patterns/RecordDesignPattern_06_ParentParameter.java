@@ -2,41 +2,45 @@ package net.mirwaldt.basic.records.design.patterns;
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_06_ParentParameter {
-    sealed interface Expression permits UnaryExpression, BinaryExpression {
+    sealed interface Expression permits WithNoOperand, WithOneOperand, WithTwoOperands {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
+    sealed interface WithNoOperand extends Expression permits Variable {
 
     }
 
-    record Variable(String name) implements UnaryExpression {
+    sealed interface WithOneOperand extends Expression permits Not, Brackets {
 
     }
 
-    record Not(Expression unnegated) implements UnaryExpression {
+    record Variable(String name) implements WithNoOperand {
 
     }
 
-    record Brackets(Expression withoutBrackets) implements UnaryExpression {
+    record Not(Expression unnegated) implements WithOneOperand {
 
     }
 
-    sealed interface BinaryExpression extends Expression permits And, Or {
+    record Brackets(Expression withoutBrackets) implements WithOneOperand {
 
     }
 
-    record And(Expression left, Expression right) implements BinaryExpression {
+    sealed interface WithTwoOperands extends Expression permits And, Or {
 
     }
 
-    record Or(Expression left, Expression right) implements BinaryExpression {
+    record And(Expression left, Expression right) implements WithTwoOperands {
+
+    }
+
+    record Or(Expression left, Expression right) implements WithTwoOperands {
 
     }
 
     public static Expression withBrackets(Expression child, Expression parent) {
         return switch (child) {
-            case Not(BinaryExpression binary) -> new Not(new Brackets(withBrackets(binary, child)));
+            case Not(WithTwoOperands withTwoOperands) -> new Not(new Brackets(withBrackets(withTwoOperands, child)));
 
             case Or or when parent instanceof And -> new Brackets(withBrackets(or, child));
 
@@ -58,6 +62,10 @@ public class RecordDesignPattern_06_ParentParameter {
         };
     }
 
+    /*
+    Output:
+    (A && !B || !(C && D)) && E
+     */
     public static void main(String[] args) {
         Variable A = new Variable("A");
         Variable B = new Variable("B");
@@ -67,6 +75,6 @@ public class RecordDesignPattern_06_ParentParameter {
         
         Expression expression = new And(new Or(new And(A, new Not(B)), new Not(new And(C, D))), E);
         Expression withBrackets = withBrackets(expression, null);
-        System.out.println(toString(withBrackets)); // prints out "(A && !B || !(C && D)) && E"
+        System.out.println(toString(withBrackets));
     }
 }

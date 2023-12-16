@@ -17,15 +17,19 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_09_
 
 public class RecordDesignPattern_09_VisitorPattern {
 
-    sealed interface Expression permits Value, UnaryExpression, BinaryExpression {
+    sealed interface Expression permits WithNoOperand, WithOneOperand, WithTwoOperands {
         <V> V accept(ExpressionVisitor<V> visitor);
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
+    sealed interface WithNoOperand extends Expression permits Value, Variable {
 
     }
 
-    enum Value implements Expression {
+    sealed interface WithOneOperand extends Expression permits Not, Brackets {
+
+    }
+
+    enum Value implements WithNoOperand {
         TRUE, FALSE;
 
         @Override
@@ -34,39 +38,39 @@ public class RecordDesignPattern_09_VisitorPattern {
         }
     }
 
-    record Variable(String name) implements UnaryExpression {
+    record Variable(String name) implements WithNoOperand {
         @Override
         public <V> V accept(ExpressionVisitor<V> visitor) {
             return visitor.visit(this);
         }
     }
 
-    record Not(Expression unnegated) implements UnaryExpression {
+    record Not(Expression unnegated) implements WithOneOperand {
         @Override
         public <V> V accept(ExpressionVisitor<V> visitor) {
             return visitor.visit(this);
         }
     }
 
-    record Brackets(Expression withoutBrackets) implements UnaryExpression {
+    record Brackets(Expression withoutBrackets) implements WithOneOperand {
         @Override
         public <V> V accept(ExpressionVisitor<V> visitor) {
             return visitor.visit(this);
         }
     }
 
-    sealed interface BinaryExpression extends Expression permits And, Or {
+    sealed interface WithTwoOperands extends Expression permits And, Or {
 
     }
 
-    record And(Expression left, Expression right) implements BinaryExpression {
+    record And(Expression left, Expression right) implements WithTwoOperands {
         @Override
         public <V> V accept(ExpressionVisitor<V> visitor) {
             return visitor.visit(this);
         }
     }
 
-    record Or(Expression left, Expression right) implements BinaryExpression {
+    record Or(Expression left, Expression right) implements WithTwoOperands {
         @Override
         public <V> V accept(ExpressionVisitor<V> visitor) {
             return visitor.visit(this);
@@ -112,7 +116,7 @@ public class RecordDesignPattern_09_VisitorPattern {
         @Override
         public Expression visit(Not not) {
             Expression visitedUnnegated = not.unnegated().accept(this);
-            return new Not((not.unnegated() instanceof BinaryExpression)
+            return new Not((not.unnegated() instanceof WithTwoOperands)
                     ? new Brackets(visitedUnnegated)
                     : new Not(visitedUnnegated)
             );
@@ -210,6 +214,11 @@ public class RecordDesignPattern_09_VisitorPattern {
         }
     }
 
+    /*
+    Output:
+    (FALSE && !!B || !(C && D)) && TRUE
+    true
+     */
     public static void main(String[] args) {
         Variable B = new Variable("B");
         Variable C = new Variable("C");

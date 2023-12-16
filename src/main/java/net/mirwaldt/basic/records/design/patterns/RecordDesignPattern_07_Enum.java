@@ -5,45 +5,49 @@ import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_07_
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_07_Enum {
-    sealed interface Expression permits Value, UnaryExpression, BinaryExpression {
+    sealed interface Expression permits WithNoOperand, WithOneOperand, WithTwoOperands {
 
     }
 
-    sealed interface UnaryExpression extends Expression permits Variable, Not, Brackets {
+    sealed interface WithNoOperand extends Expression permits Variable, Value {
 
     }
 
-    enum Value implements Expression {
+    sealed interface WithOneOperand extends Expression permits Not, Brackets {
+
+    }
+
+    enum Value implements WithNoOperand {
         TRUE, FALSE;
     }
 
-    record Variable(String name) implements UnaryExpression {
+    record Variable(String name) implements WithNoOperand {
 
     }
 
-    record Not(Expression unnegated) implements UnaryExpression {
+    record Not(Expression unnegated) implements WithOneOperand {
 
     }
 
-    record Brackets(Expression withoutBrackets) implements UnaryExpression {
+    record Brackets(Expression withoutBrackets) implements WithOneOperand {
 
     }
 
-    sealed interface BinaryExpression extends Expression permits And, Or {
+    sealed interface WithTwoOperands extends Expression permits And, Or {
 
     }
 
-    record And(Expression left, Expression right) implements BinaryExpression {
+    record And(Expression left, Expression right) implements WithTwoOperands {
 
     }
 
-    record Or(Expression left, Expression right) implements BinaryExpression {
+    record Or(Expression left, Expression right) implements WithTwoOperands {
 
     }
 
     public static Expression withBrackets(Expression child, Expression parent) {
         return switch (child) {
-            case Not(BinaryExpression binary) -> new Not(new Brackets(withBrackets(binary, child)));
+            case Not(WithTwoOperands withTwoOperands) -> new Not(new Brackets(withBrackets(withTwoOperands, child)));
             case Or or when parent instanceof And -> new Brackets(withBrackets(or, child));
             case Not(var unnegated) -> new Not(withBrackets(unnegated, child));
             case And(var left, var right) -> new And(withBrackets(left, child), withBrackets(right, child));
@@ -63,6 +67,10 @@ public class RecordDesignPattern_07_Enum {
         };
     }
 
+    /*
+    Output:
+    (FALSE && !B || !(C && D)) && TRUE
+     */
     public static void main(String[] args) {
         Variable B = new Variable("B");
         Variable C = new Variable("C");
@@ -70,6 +78,6 @@ public class RecordDesignPattern_07_Enum {
         
         Expression expression = new And(new Or(new And(FALSE, new Not(B)), new Not(new And(C, D))), TRUE);
         Expression withBrackets = withBrackets(expression, null);
-        System.out.println(toString(withBrackets)); // prints out "(FALSE && !B || !(C && D)) && TRUE"
+        System.out.println(toString(withBrackets));
     }
 }

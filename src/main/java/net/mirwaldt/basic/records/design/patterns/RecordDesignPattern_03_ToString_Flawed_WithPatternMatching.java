@@ -30,6 +30,10 @@ public class RecordDesignPattern_03_ToString_Flawed_WithPatternMatching {
         };
     }
 
+    /*
+    Output:
+    A && !B || !C && D && E
+     */
     public static void main(String[] args) {
         Variable A = new Variable("A");
         Variable B = new Variable("B");
