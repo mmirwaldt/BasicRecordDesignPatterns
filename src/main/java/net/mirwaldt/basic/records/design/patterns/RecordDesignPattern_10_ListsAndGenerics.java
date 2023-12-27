@@ -97,50 +97,50 @@ public class RecordDesignPattern_10_ListsAndGenerics {
     }
 
     record And<V extends Value<V>>(Expression<V> first, Expression<V> second,
-                                   List<Expression<V>> remaining) implements WithManyOperands<V> {
+                                   List<Expression<V>> tail) implements WithManyOperands<V> {
         And { // for libraries
-            remaining = List.copyOf(remaining);
+            tail = List.copyOf(tail);
         }
 
         @SafeVarargs
-        And(Expression<V> first, Expression<V> second, Expression<V>... remaining) {
-            this(first, second, List.of(remaining));
+        And(Expression<V> first, Expression<V> second, Expression<V>... tail) {
+            this(first, second, List.of(tail));
         }
 
         public And<V> withoutLast() {
-            return new And<>(first, second, remaining.subList(0, remaining.size() - 1));
+            return new And<>(first, second, tail.subList(0, tail.size() - 1));
         }
 
         public Expression<V> last() {
-            return remaining.get(remaining.size() - 1);
+            return tail.get(tail.size() - 1);
         }
 
         public boolean isBinary() {
-            return remaining.isEmpty();
+            return tail.isEmpty();
         }
     }
 
     record Or<V extends Value<V>>(Expression<V> first, Expression<V> second,
-                                  List<Expression<V>> remaining) implements WithManyOperands<V> {
+                                  List<Expression<V>> tail) implements WithManyOperands<V> {
         Or {  // for libraries
-            remaining = List.copyOf(remaining);
+            tail = List.copyOf(tail);
         }
 
         @SafeVarargs
-        Or(Expression<V> first, Expression<V> second, Expression<V>... remaining) {
-            this(first, second, List.of(remaining));
+        Or(Expression<V> first, Expression<V> second, Expression<V>... tail) {
+            this(first, second, List.of(tail));
         }
 
         public Or<V> withoutLast() {
-            return new Or<>(first, second, remaining.subList(0, remaining.size() - 1));
+            return new Or<>(first, second, tail.subList(0, tail.size() - 1));
         }
 
         public Expression<V> last() {
-            return remaining.get(remaining.size() - 1);
+            return tail.get(tail.size() - 1);
         }
 
         public boolean isBinary() {
-            return remaining.isEmpty();
+            return tail.isEmpty();
         }
     }
 
