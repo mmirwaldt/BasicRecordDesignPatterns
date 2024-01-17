@@ -16,13 +16,13 @@ import java.util.Map;
 
 import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BitValue._0;
 import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BitValue._1;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BooleanValue.FALSE;
-import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BooleanValue.TRUE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BoolValue.FALSE;
+import static net.mirwaldt.basic.records.design.patterns.RecordDesignPattern_10_ListsAndGenerics.BoolValue.TRUE;
 
 
 @SuppressWarnings("ClassEscapesDefinedScope")
 public class RecordDesignPattern_10_ListsAndGenerics {
-    sealed interface Value<V extends Value<V>> extends WithNoOperand<V> permits BooleanValue, BitValue {
+    sealed interface Value<V extends Value<V>> extends WithNoOperand<V> permits BoolValue, BitValue {
         V getTrue();
 
         V getFalse();
@@ -40,16 +40,16 @@ public class RecordDesignPattern_10_ListsAndGenerics {
         }
     }
 
-    enum BooleanValue implements Value<BooleanValue> {
+    enum BoolValue implements Value<BoolValue> {
         TRUE, FALSE;
 
         @Override
-        public BooleanValue getTrue() {
+        public BoolValue getTrue() {
             return TRUE;
         }
 
         @Override
-        public BooleanValue getFalse() {
+        public BoolValue getFalse() {
             return FALSE;
         }
     }
@@ -65,6 +65,11 @@ public class RecordDesignPattern_10_ListsAndGenerics {
         @Override
         public BitValue getFalse() {
             return _0;
+        }
+
+        @Override
+        public String toString() {
+            return name().substring(1);
         }
     }
 
@@ -161,8 +166,8 @@ public class RecordDesignPattern_10_ListsAndGenerics {
 
     public static <V extends Value<V>> String toString(Expression<V> expression) {
         return switch (expression) {
-            case BooleanValue booleanValue -> booleanValue.toString();
-            case BitValue bitValue -> bitValue.toString().substring(1);
+            case BoolValue boolValue -> boolValue.toString();
+            case BitValue bitValue -> bitValue.toString();
             case Variable<V>(var name) -> name;
             case Not<V>(var unnegated) -> "!" + toString(unnegated);
             case Brackets<V>(var withoutBrackets) -> "(" + toString(withoutBrackets) + ")";
@@ -188,8 +193,8 @@ public class RecordDesignPattern_10_ListsAndGenerics {
     /*
     Output:
     (A && 1 && !B || !(C && D) || 0) && 1
-    _0
-    _1
+    0
+    1
     (A && TRUE && !B || !(C && D) || FALSE) && TRUE
     FALSE
     TRUE
@@ -205,19 +210,19 @@ public class RecordDesignPattern_10_ListsAndGenerics {
         Expression<BitValue> bitExpressionWithBrackets = withBrackets(bitExpression, null);
         // prints out "(A && 1 && !B || !(C && D) || 0) && 1"
         System.out.println(toString(bitExpressionWithBrackets));
-        // prints out _0
+        // prints out 0
         System.out.println(evaluate(bitExpression, Map.of(A, _0, B, _0, C, _1, D, _1)));
-        // prints out _1
+        // prints out 1
         System.out.println(evaluate(bitExpression, Map.of(A, _1, B, _0, C, _1, D, _0)));
 
-        Variable<BooleanValue> a = new Variable<>("A");
-        Variable<BooleanValue> b = new Variable<>("B");
-        Variable<BooleanValue> c = new Variable<>("C");
-        Variable<BooleanValue> d = new Variable<>("D");
+        Variable<BoolValue> a = new Variable<>("A");
+        Variable<BoolValue> b = new Variable<>("B");
+        Variable<BoolValue> c = new Variable<>("C");
+        Variable<BoolValue> d = new Variable<>("D");
 
-        Expression<BooleanValue> booleanExpression =
+        Expression<BoolValue> booleanExpression =
                 new And<>(new Or<>(new And<>(a, TRUE, new Not<>(b)), new Not<>(new And<>(c, d)), FALSE), TRUE);
-        Expression<BooleanValue> booleanExpressionWithBrackets = withBrackets(booleanExpression, null);
+        Expression<BoolValue> booleanExpressionWithBrackets = withBrackets(booleanExpression, null);
 
         // prints out "(A && TRUE && !B || !(C && C) || FALSE) && TRUE"
         System.out.println(toString(booleanExpressionWithBrackets));
