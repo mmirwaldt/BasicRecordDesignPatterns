@@ -5,17 +5,12 @@
 This project includes the slides and the code examples of the presentation "Damit Datenklassen klasse sind -
 Basismuster für Records in Java".
 
-## Where can you find the OLD slides?
+## Where can you find the slides?
 
 You can find them here:
 
 * in German: https://github.com/mmirwaldt/BasicRecordDesignPatterns/blob/master/Records_1_Folien_2024_01_17.pdf
-
-## Where can you find the NEWEST slides?
-
-You can find them here:
-
-* in German: https://github.com/mmirwaldt/BasicRecordDesignPatterns/blob/master/Records_1_Slides_2024_01_17.pdf
+* in English: https://github.com/mmirwaldt/BasicRecordDesignPatterns/blob/master/Records_1_Slides_2024_01_17.pdf
 
 They are protected by a password which you get when you watch this talk.
 
