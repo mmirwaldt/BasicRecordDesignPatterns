@@ -9,8 +9,8 @@ Basismuster für Records in Java".
 
 You can find them here:
 
-* in German: https://github.com/mmirwaldt/BasicRecordDesignPatterns/blob/master/Records_1_Folien_2024_01_17.pdf
-* in English: https://github.com/mmirwaldt/BasicRecordDesignPatterns/blob/master/Records_1_Slides_2024_01_17.pdf
+* in German: https://github.com/mmirwaldt/BasicRecordDesignPatterns/blob/master/Records_1_Folien_2024_01_18.pdf
+* in English: https://github.com/mmirwaldt/BasicRecordDesignPatterns/blob/master/Records_1_Slides_2024_01_18.pdf
 
 They are protected by a password which you get when you watch this talk.
 
